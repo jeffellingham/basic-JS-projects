@@ -1,3 +1,9 @@
+// He emphasized that with a project like this we'd usually be pulling the data from an
+// external source using AJAX rather than local files like this, but that doing that would still
+// require everything we're doing now and only a few additional lines of code. So, learning how it
+// works before introducing AJAX will be extremely valuable and important.
+
+// menu items
 const menu = [
   {
     id: 1,
@@ -71,4 +77,85 @@ const menu = [
     img: "./images/item-9.jpeg",
     desc: `skateboard fam synth authentic semiotics. Live-edge lyft af, edison bulb yuccie crucifix microdosing.`,
   },
+  {
+    id: 10,
+    title: "steak dinner",
+    category: "dinner",
+    price: 39.99,
+    img: "./images/item-10.jpeg",
+    desc: `skateboard fam synth authentic semiotics. Live-edge lyft af, edison bulb yuccie crucifix microdosing.`,
+  },
 ];
+
+// selecting the parent
+const sectionCenter = document.querySelector('.section-center');
+const container = document.querySelector('.btn-container');
+
+
+// Do "something" once the DOM content loads (the html content)
+window.addEventListener('DOMContentLoaded', function() {
+  // We had all the code from displayMenuItems function in here, but moved to its own function to make other things, like filters, easier.
+  displayMenuItems(menu);
+  // Same thing with the buttons, set it up in here then moved to its own function.
+  displayMenuButtons();
+});
+
+
+
+function displayMenuItems(menuItems) {
+  let displayMenu = menuItems.map(function(item) {
+    // console.log(item)  <- logs every item from the array
+    // return `<h1>${item.title}</h1>`   <- returns the title from every array item (menu item name)
+    // so, we just need to do that, but for every part of an array's item and iterate it
+    // To do that, we just copy the hard-coded example we wrote in html, then replace every slot for an array item and make it dynamic
+
+    return `<article class="menu-item">
+              <img src=${item.img} alt="${item.title}" class="photo">
+              <div class="item-info">
+                <header>
+                  <h4>${item.title}</h4>
+                  <h4 class="price">${item.price}</h4>
+                </header>
+                <p class="item-text">${item.desc}}</p>
+              </div>
+            </article>`;
+  });
+  // make each item a single string, rather than array. Then place in parent element
+  displayMenu = displayMenu.join('');
+  sectionCenter.innerHTML = displayMenu;
+}
+
+function displayMenuButtons() {
+   // Isolate each unique category so we can dynamically create filter buttons (if more needed), using reduce instead of map
+   const categories = menu.reduce(function(values, item) {
+    if (!values.includes(item.category)) {
+      values.push(item.category);
+    }
+    return values;
+  }, ['all']);
+  const categoryBtns = categories.map(function(category) {
+    return `<button class="filter-btn" type="button" data-id=${category}>
+              ${category}
+            </button>`;
+  }).join("");
+  container.innerHTML = categoryBtns;
+  // Since we dynamically created the buttons after DOM loaded, filter function can't access them how we had it outside this listener
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  // filter items
+filterBtns.forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    // dataset property pulls what tag is set in html data- attribute, id custom suffix that could be anything
+    const category = e.currentTarget.dataset.id;
+    const menuCategory = menu.filter(function(menuItem) {
+      if(menuItem.category === category) {
+        return menuItem;
+      }
+    });
+    if(category === 'all') {
+      displayMenuItems(menu);
+    } else {
+      displayMenuItems(menuCategory);
+    }
+  });
+});
+}
